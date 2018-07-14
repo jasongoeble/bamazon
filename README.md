@@ -1,2 +1,3 @@
-# liri-node-app
-Node command line operations
+#bamazon
+
+mysql and node homework
