@@ -24,7 +24,19 @@ var connection = mysql.createConnection({
 //open connection and run manager
 connection.connect(function(err){
     if (err) throw err;
-    
+
+    //this query populates the current products table list and their corresponding stock quantities to two different
+    //arrays that will be used in other functions
+    connection.query("SELECT * FROM bamazon.products", function(err, res)
+    {
+        if (err) throw err;
+        for (var u = 0; u < res.length; u++)
+        {
+            productList.push(res[u].product_name);
+            productCount.push(res[u].stock_quantity);
+        }
+    });
+
     //runs the inquirer npm functionality for the manager interface
     inquirer.prompt(managerMenu).then(function(menuAnswers)
     {
@@ -66,6 +78,8 @@ function viewAllSale()
 {
     connection.query("SELECT * FROM bamazon.products", function(err, res){
         if (err) throw err;
+
+        console.log("ID | Name | Price | Quantity");
         for (var i = 0; i < res.length; i++)
         {
             console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].price + " | " + res[i].stock_quantity);
@@ -84,7 +98,8 @@ function viewLowInv()
     connection.query("SELECT * FROM bamazon.products WHERE stock_quantity < 5", function(err, res){
         if (err) throw err;
         if(res.length > 0)
-        {    
+        {            
+            console.log("ID | Name | Price | Quantity");
             for (var i = 0; i < res.length; i++)
             {
                 console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].price + " | " + res[i].stock_quantity);
@@ -178,7 +193,7 @@ var addStock =
         message: "Please select the item to which you want to log-in new stock quantities: ",
         type: "list",
         name: "productChoice",
-        choices: ["gizmo", "gadget", "widget", "thing-a-ma-jig", "wrench", "scew driver", "cabinet install", "vanity install", "home theater install", "consulting"]
+        choices: productList
     },
     {
         message: "Please enter the additional quantity of the item received: ",
@@ -202,19 +217,6 @@ var addStock =
 
 function addToInv()
 {
-    productList = [];
-    productCount = [];
-
-    connection.query("SELECT * FROM bamazon.products", function(err, res)
-    {
-        if (err) throw err;
-        for (var u = 0; u < res.length; u++)
-        {
-            productList.push(res[u].product_name);
-            productCount.push(res[u].stock_quantity);
-        }
-    });
-
     //ask questions about which product and how much to add to inventory
     inquirer.prompt(addStock).then(function(addToInvAnswers){
 

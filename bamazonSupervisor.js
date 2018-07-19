@@ -1,6 +1,8 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 
+var superOper = ["View Product Sales by Department", "Add New Department"];
+
 //this initiates the connection to the database
 var connection = mysql.createConnection({
     //hosted locally
@@ -31,20 +33,18 @@ var supervisorMenu =
 connection.connect(function(err){
     if (err) throw err;
 
-    console.log("connected as id " + connection.threadId);
-    
-    //runs the inquirer npm functionality for the manager interface
+    //runs the inquirer npm functionality for the supervisor's interface
     inquirer.prompt(supervisorMenu).then(function(menuAnswers)
     {
-        var superChoice = menuAnswers.supervisorFunction;
+        var superChoice = menuAnswers.supervisorFunctions;
 
-        //provide appropriate functionality based on manager's choice
+        //provide appropriate functionality based on supervisors's choice
         switch (superChoice)
         {
-            case superChoice[0]:
+            case superOper[0]:
                 viewDeptSale();
                 break;
-            case superChoice[1]:
+            case superOper[1]:
                 addDept();
                 break;            
             default:
@@ -55,18 +55,17 @@ connection.connect(function(err){
 
 function viewDeptSale()
 {
-    connection.query("SELECT DISTINCT(A.department_id) AS Dept_ID, A.department_name AS Dept_Name, A.over_head_costs AS Dept_Costs, B.product_sales AS Dept_Sales (SUM(B.product_sales) - A.over_head_costs) AS Profits FROM departments AS A LEFT JOIN products AS B ON A.department_name = B.department_name GROUP BY A.department_id, B.product_sales", function(err, res)
+    connection.query("SELECT departments.department_id AS 'DeptID', departments.department_name AS 'DeptName', departments.over_head_costs AS 'DeptCosts', SUM(products.product_sales) AS 'DeptSales', (SUM(products.product_sales) - departments.over_head_costs) AS 'DeptProfit' FROM products JOIN departments ON products.department_name = departments.department_name GROUP BY departments.department_id", function(err, res)
     {
         if (err) throw err;
-        /*for (var j = 0; j < res.length; j++)
+        console.log("Dept ID | Dept Name       | Dept Costs | Dept Sales | Dept Profits");
+        for (var j = 0; j < res.length; j++)
         {
-            console.log(res[j].Dept_ID + " | " + res[j].Dept_Name + " | " + res[j].Dept_Costs + " | " + res[j].Dept_Sales + " | " + res[j].Profits);
+            console.log(res[j].DeptID + "       |   " + res[j].DeptName + " | " + res[j].DeptCost + "  | " + res[j].DeptSales + "        |" + res[j].DeptProfit);
             console.log("--------------------------------------");
-        }*/
-        console.log(res);
+        }
     });
 
-    console.log(qery.sql);
      //close the db connection
      connection.end();
 }
