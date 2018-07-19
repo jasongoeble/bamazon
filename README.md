@@ -24,4 +24,4 @@ Issues:
     -as i spent a lot more time than i had planned learning inquirer i did not have enough time to include a tabular npm package to make table presentation more visually appealing.  therefore, the tables that are displayed are not organized nicely
 
 Incomplete:
-    -the supervisor function, i have not had time to finish it
+    -the supervisor function, i have not had time to finish it.  I did get the information for viewing sales, costs, and profits by department finished; however, the add new department feature has not been built.
